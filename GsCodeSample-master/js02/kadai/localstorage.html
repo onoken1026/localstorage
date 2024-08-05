@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>X TREND10</title>
+<script src="js/jquery-2.1.3.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #f0e0e0; /* 背景色の変更（任意） */
+    }
+    .trend {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        width: 300px;  /* 適切な幅を設定して中央に配置 */
+        margin-left: auto;
+        margin-right: auto;
+        text-align: left;  /* 左揃え */
+    }
+    .trend span {
+        flex-grow: 1;
+    }
+    .trend button {
+        margin-left: 10px;
+    }
+    .form-group {
+        display: flex;
+        justify-content: center;  /* 中央揃え */
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .form-group input {
+        margin-right: 10px;  /* 右側にマージンを追加 */
+    }
+    #addTrendContainer {
+        margin-top: 30px;  /* 上部に余白を追加 */
+    }
+    .logo-img{
+    width: 150px; /* 画像の幅を50%に縮小 */
+    height: auto; /* 高さは自動調整 */
+}
+</style>
+</head>
+
+
+<body>
+
+    <img src="img/X黒バック.png" alt="logoimg" class="logo-img">
+    <h1>トレンドベスト10</h1>
+    <div id="trends"></div>
+
+    <div id="addTrendContainer">
+        <h2>トレンドの追加</h2>
+        <div class="form-group">
+            <label for="trendName">トレンド名:</label>
+            <input type="text" id="trendName">
+            <button onclick="addTrend()">追加</button>
+        </div>
+        <p id="message" style="color: red;"></p>
+    </div>
+
+    <script>
+        // トレンドをlocalStorageに保存
+        function saveTrends(trends) {
+            localStorage.setItem('trends', JSON.stringify(trends));
+        }
+
+        // localStorageからトレンドを取得
+        function getTrends() {
+            const trends = localStorage.getItem('trends');
+            return trends ? JSON.parse(trends) : new Array(10).fill(null);
+        }
+
+        // トレンドを表示
+        function displayTrends() {
+            const trendsDiv = document.getElementById('trends');
+            const trends = getTrends();
+            trendsDiv.innerHTML = '';
+            trends.forEach((trend, index) => {
+                const trendDiv = document.createElement('div');
+                trendDiv.className = 'trend';
+
+                const trendText = document.createElement('span');
+                trendText.textContent = `${index + 1}. ${trend !== null ? trend : ''}`;
+                trendDiv.appendChild(trendText);
+
+                if (trend !== null) {
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = '削除';
+                    deleteButton.onclick = () => removeTrend(index);
+                    trendDiv.appendChild(deleteButton);
+                }
+
+                trendsDiv.appendChild(trendDiv);
+            });
+        }
+
+        // トレンドを追加
+        function addTrend() {
+            const trendNameInput = document.getElementById('trendName');
+            const trendName = trendNameInput.value.trim();
+            const message = document.getElementById('message');
+            const trends = getTrends();
+
+            if (trends.filter(trend => trend !== null).length >= 10) {
+                message.textContent = "トレンドは最大10個までです。";
+                return;
+            }
+
+            if (trendName) {
+                const emptyIndex = trends.indexOf(null);
+                if (emptyIndex !== -1) {
+                    trends[emptyIndex] = trendName;
+                } else {
+                    trends.push(trendName);
+                }
+                saveTrends(trends);
+                displayTrends();
+                trendNameInput.value = ''; // 入力フィールドをクリア
+                message.textContent = ''; // メッセージをクリア
+            }
+        }
+
+        // トレンドを削除
+        function removeTrend(index) {
+            const trends = getTrends();
+            trends[index] = null;
+            saveTrends(trends);
+            displayTrends();
+        }
+
+        // ページ読み込み時にトレンドを表示
+        document.addEventListener('DOMContentLoaded', displayTrends);
+    </script>
+
+</body>
+</html>
+
+
+
+
+<footer><small></small></footer>
+</body>
+</html>
